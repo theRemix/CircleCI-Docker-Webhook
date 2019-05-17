@@ -24,15 +24,16 @@ This repo contains:
 
 ## Setup Overview
 
-1. [Quay Setup](#Quay Setup)
-1. [Copy the Trigger URL](#Copy the webhook url with token)
-1. [CircleCI Setup](#CircleCI Setup)
-1. [CircleCI Setup](#CircleCI Setup)
+1. [Quay Setup](#quay-setup)
+1. [Copy the Trigger URL](#copy-the-webhook-url-with-token)
+1. [CircleCI Setup](#circleci-setup)
+1. [Webhook Setup](#webhook-setup)
+1. [Run Webhook](#run-webhook)
 
 
 ## Quay Setup
 
-<details><summary>New Quay Repo></summary>
+<details><summary>New Quay Repo</summary>
 <div>
 
 - Create new Container Image Repository
