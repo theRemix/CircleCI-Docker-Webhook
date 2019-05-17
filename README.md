@@ -3,8 +3,11 @@
 Script to autodeploy new versions of a repo after the docker image has been built in Quay, with optional slack notifications.
 
 Successful CircleCI tests -> triggers Quay Builds
+
 Successful Quay builds -> triggers Deploy Webhook
+
 Successful Deployments -> (optionally) notifies via slack
+
 
 This repo contains:
 
@@ -29,22 +32,25 @@ This repo contains:
 
 ## Quay Setup
 
-<details><summary><h3>New Quay Repo</h3></summary>
+<details><summary>New Quay Repo></summary>
 <div>
 
 - Create new Container Image Repository
 - Link to Custom Git Repository Push
     - see [https://docs.quay.io/guides/custom-trigger.html](https://docs.quay.io/guides/custom-trigger.html)
 
+![Quay Custom Git Repo Push](https://user-images.githubusercontent.com/132562/57953502-16dc8b00-78a5-11e9-97d6-b112382e517c.png)
 
 </div>
 </details>
 
-<details><summary><h3>Existing Quay Repo</h3></summary>
+<details><summary>Existing Quay Repo></summary>
 <div>
 
 - add Build Trigger
     - see [https://docs.quay.io/guides/custom-trigger.html](https://docs.quay.io/guides/custom-trigger.html)
+
+![Quay Build Triggers](https://user-images.githubusercontent.com/132562/57953506-18a64e80-78a5-11e9-8750-d7ab151d1212.png)
 
 </div>
 </details>
@@ -76,6 +82,7 @@ Set the Webhook URL to your deployment server
 Create Slack Notifications for other events too.
 
 
+![Quay Create Repo Notification](https://user-images.githubusercontent.com/132562/57953501-1512c780-78a5-11e9-8855-176d89296ba7.png)
 
 ## CircleCI Setup
 
@@ -91,6 +98,9 @@ Set the value to the webhook url from quay, escape the `$` with `\$`
 https://\$token:T79QKPYYN7BEEFQ2EAXKLLURGEDEADC0F10KAIPINCBTJQV015DSME4787I7OOXK@quay.io/webhooks/push/trigger/17771773-1f33-4f33-a7ee-be870d11d1d1
 ```
 
+![CircleCI Envs](https://user-images.githubusercontent.com/132562/57953495-1217d700-78a5-11e9-8190-fd757d15f232.png)
+
+
 ## Webhook Setup
 
 ### Webhook Configuration
@@ -102,7 +112,7 @@ cp example.hcl config.hcl
 $EDITOR config.hcl
 ```
 
-<details><summary><h4>Slack Notifications</h4></summary>
+<details><summary>Slack Notifications></summary>
 <div>
 
 (Optional)
