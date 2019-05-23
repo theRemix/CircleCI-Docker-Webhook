@@ -24,11 +24,63 @@ This repo contains:
 
 ## Setup Overview
 
+1. [Webhook Setup](#webhook-setup)
 1. [Quay Setup](#quay-setup)
 1. [Copy the Trigger URL](#copy-the-webhook-url-with-token)
 1. [CircleCI Setup](#circleci-setup)
-1. [Webhook Setup](#webhook-setup)
 1. [Run Webhook](#run-webhook)
+
+## Webhook Setup
+
+### Webhook Configuration
+
+see [./example.hcl](./example.hcl)
+
+```sh
+cp example.hcl config.hcl
+$EDITOR config.hcl
+```
+
+### Set Quay Webhook Path
+
+This is used so no one can spam the webhook endpoint without knowing this path. Consider it secret.
+
+_this should go without saying, always use TLS_
+
+**Quick and Simple** generate a random path
+
+```sh
+sh -c 'sed -i -e "s/webhookPath = .*/webhookPath = \"`head \/dev\/urandom | shasum -a 512256 | base64 -w 0`\"/" config.hcl'
+```
+
+<details><summary>Slack Notifications></summary>
+<div>
+
+(Optional)
+
+If you want slack notifications, update the `slack` block in `config.hcl`
+
+otherwise, delete the `slack` block
+
+</div>
+</details>
+
+
+### Install
+
+#### On Server
+
+_if go is installed on your server_
+
+```sh
+go install github.com/theremix/circleci-docker-webhook
+```
+
+### Or Compile Locally and upload
+
+Compile the webhook with `make` (or `make linux64` if you are not compiling on linux)
+
+scp `./bin/webhook` and `./config.hcl` up to your server.
 
 
 ## Quay Setup
@@ -76,14 +128,14 @@ Leave "matching refs" blank
 
 Then issue a notification : "Webhook POST"
 
-Set the Webhook URL to your deployment server
+Set the Webhook URL to your deployment server with the `webhookPath` from [Webhook Setup](#webhook-setup) configuration
+
+![Quay Create Repo Notification](https://user-images.githubusercontent.com/132562/58289478-64586c80-7d6b-11e9-8bd3-a297543a2f8e.png)
 
 **Optional Slack Notifications**
 
 Create Slack Notifications for other events too.
 
-
-![Quay Create Repo Notification](https://user-images.githubusercontent.com/132562/57953501-1512c780-78a5-11e9-8855-176d89296ba7.png)
 
 ## CircleCI Setup
 
@@ -101,39 +153,7 @@ https://\$token:T79QKPYYN7BEEFQ2EAXKLLURGEDEADC0F10KAIPINCBTJQV015DSME4787I7OOXK
 
 ![CircleCI Envs](https://user-images.githubusercontent.com/132562/57953495-1217d700-78a5-11e9-8190-fd757d15f232.png)
 
-
-## Webhook Setup
-
-### Webhook Configuration
-
-see [./example.hcl](./example.hcl)
-
-```sh
-cp example.hcl config.hcl
-$EDITOR config.hcl
-```
-
-<details><summary>Slack Notifications></summary>
-<div>
-
-(Optional)
-
-If you want slack notifications, update the `slack` block in `config.hcl`
-
-otherwise, delete the `slack` block
-
-</div>
-</details>
-
-
-### Compile and upload
-
-Compile the webhook with `make` (or `make linux64` if you are not compiling on linux)
-
-scp `./bin/webhook` and `./config.hcl` up to your server.
-
-
-### Run webhook
+## Run webhook
 
 ssh into your server
 
@@ -156,6 +176,11 @@ PORT=2121 nohup ./webhook config.hcl >> webhook.log 2>&1 &
 ```sh
 DEBUG=1 nohup ./webhook config.hcl >> webhook.log 2>&1 &
 ```
+
+### Or Systemd
+
+see [webhook.service](./webhook.service) for an example
+
 
 
 ## Test trigger

@@ -1,3 +1,6 @@
+# (required) the url path for quay to request, consider this secret
+webhookPath = "CHANGE_ME__DO_NOT_ACTUALLY_USE_THIS_VALUE__SEE_README"
+
 slack {
   # (required) supply webhook url
   webhookUrl = "https://hooks.slack.com/services/TTTTTTTTT/BBBBBBBBB/GGGGGGGGGGGGGGGGGGGGGGGG"

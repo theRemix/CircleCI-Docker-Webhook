@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/hashicorp/hcl"
 	"io/ioutil"
@@ -70,8 +71,19 @@ type Service struct {
 }
 
 type Config struct {
-	Slack    *Slack    `hcl:"slack"`
-	Services []Service `hcl:"service"`
+	WebhookPath string    `hcl:"webhookPath"`
+	Slack       *Slack    `hcl:"slack"`
+	Services    []Service `hcl:"service"`
+}
+
+func validateConfig(config *Config) error {
+	if config.WebhookPath == "" {
+		return errors.New("( required ) webhookPath is missing from config.")
+	}
+	if config.WebhookPath == "CHANGE_ME__DO_NOT_ACTUALLY_USE_THIS_VALUE__SEE_README" {
+		return errors.New("( required ) webhookPath has not been updated from the example. see Readme.md")
+	}
+	return nil
 }
 
 func timestamp() string {
@@ -79,7 +91,7 @@ func timestamp() string {
 	return t.Format("2006-01-02 15:04:05")
 }
 
-func notifier(config Config) func(string) {
+func notifier(config *Config) func(string) {
 	if config.Slack == nil {
 		return func(_ string) {}
 	} else {
@@ -163,10 +175,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var config Config
-	decodeErr := hcl.Unmarshal(configContents, &config)
+	config := &Config{}
+	decodeErr := hcl.Unmarshal(configContents, config)
 	if decodeErr != nil {
 		log.Fatal(decodeErr)
+	}
+
+	configValidationErr := validateConfig(config)
+	if configValidationErr != nil {
+		log.Fatal(configValidationErr)
 	}
 
 	fmt.Printf("[%s Config loaded] %s\n", timestamp(), configPath)
@@ -178,6 +195,18 @@ func main() {
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			fmt.Printf("[%s ERROR] [incorrect method] received: %s\n", timestamp(), r.Method)
+			fmt.Fprintf(w, "ok")
+			return
+		}
+
+		if r.RequestURI != "/"+config.WebhookPath {
+			fmt.Printf("[%s ERROR] [incorrect webhookPath] received: %s\n", timestamp(), r.RequestURI)
+			fmt.Fprintf(w, "ok")
+			return
+		}
+
 		decoder := json.NewDecoder(r.Body)
 		var payload IncomingWebhook
 		err := decoder.Decode(&payload)
