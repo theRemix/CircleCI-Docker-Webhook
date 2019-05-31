@@ -221,13 +221,15 @@ func main() {
 			return
 		}
 
-		for _, svc := range config.Services {
-			re := regexp.MustCompile(svc.Conditions)
-			if svc.Repository == payload.Repository && len(re.Find([]byte(payload.TriggerMetadata.Ref))) != 0 {
-				notify(fmt.Sprintf("Deploying %s", svc.Name))
-				notify(deploy(svc, payload.TriggerMetadata.Ref))
+		go func() {
+			for _, svc := range config.Services {
+				re := regexp.MustCompile(svc.Conditions)
+				if svc.Repository == payload.Repository && len(re.Find([]byte(payload.TriggerMetadata.Ref))) != 0 {
+					notify(fmt.Sprintf("Deploying %s", svc.Name))
+					notify(deploy(svc, payload.TriggerMetadata.Ref))
+				}
 			}
-		}
+		}()
 
 		fmt.Fprintf(w, "ok")
 	})
