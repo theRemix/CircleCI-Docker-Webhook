@@ -64,10 +64,11 @@ type Slack struct {
 }
 
 type Service struct {
-	Name       string `hcl:",key"`
-	Repository string `hcl:"repository"`
-	Cmd        string `hcl:"cmd"`
-	Conditions string `hcl:"conditions"`
+	Name          string `hcl:",key"`
+	Repository    string `hcl:"repository"`
+	Cmd           string `hcl:"cmd"`
+	Conditions    string `hcl:"conditions"`
+	DeployMessage string `hcl:"deployMessage"`
 }
 
 type Config struct {
@@ -151,6 +152,15 @@ func deploy(svc Service, ref string) string {
 	fmt.Printf("[%s Shell Output (begin)]\n", timestamp())
 	fmt.Printf("%s\n", out)
 	fmt.Printf("[%s Shell Output (end)]\n", timestamp())
+
+	if svc.DeployMessage != "" {
+		template = []byte(svc.DeployMessage)
+		message := []byte{}
+		for _, submatches := range pattern.FindAllSubmatchIndex(content, -1) {
+			message = pattern.Expand(message, template, content, submatches)
+		}
+		return fmt.Sprintf(string(message))
+	}
 
 	return fmt.Sprintf("Successfully deployed %s from %s", svc.Name, ref)
 }
